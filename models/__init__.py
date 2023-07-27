@@ -1,1 +1,1 @@
-from .battery_value_models import AdvancedBatteryValueModel
+from .battery_value_models import AdvancedBatteryValueModel, SimpleBatteryValueModel
