@@ -163,4 +163,5 @@ cython_debug/
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+!.elasticbeanstalk/*.global.ymlvenv_BatteryValueModel/
+venv-BatteryValueModel/
