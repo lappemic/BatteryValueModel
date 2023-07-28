@@ -9,8 +9,7 @@ conducted at Berner Fachhochschule (bfh) in Biel, Switzerland. The outcomes pres
 any formal validation process yet, and therefore no assurance regarding their accuracy or reliability can be given.
 
 ## Deployment
-At model is deployed at the moment on this domain:<br>
-
+Tho facilitate the model, it is deployed at the moment on this domain:<br>
 https://battery-value-model-136905a15320.herokuapp.com
 
 ## Prerequisites
