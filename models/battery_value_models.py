@@ -20,7 +20,7 @@ class SimpleBatteryValueModel:
         
     def f_vat(self, vat_rate):
         # initial price of the ev gets reduced immadiately by the vat after purchase
-        return (100-vat_rate)/100
+        return 1-vat_rate
 
     def f_soh(self, soh):
         # Exponential function to model a steeper decline in value
@@ -28,18 +28,31 @@ class SimpleBatteryValueModel:
 
     def f_warranty_time(self, t):
         # Logistic regression function to flatten out value decrese over time
-        return 1 / (1 + np.exp(-10*(1 - t/self.warranty_period))) * (1-self.warranty_base_ratio) + self.warranty_base_ratio
+        # TODO: Check options to mitigate if statement
+        if t == 0:
+            return 1
+        else:
+            return 1 / (1 + np.exp(-10*(1 - t/self.warranty_period))) * (1-self.warranty_base_ratio) + self.warranty_base_ratio
         
     def f_warranty_distance(self, km):
         # Logistic regression function to flatten out value decrese over distance
-        return 1 / (1 + np.exp(-10*(1 - km/self.warranty_distance))) * (1-self.warranty_base_ratio) + self.warranty_base_ratio
+        # TODO: Check options to mitigate if statement
+        if km == 0:
+            return 1
+        else:
+            return 1 / (1 + np.exp(-5*(1 - km/self.warranty_distance))) * (1-self.warranty_base_ratio) + self.warranty_base_ratio
 
     def remaining_value(self, original_price, soh, t, km):
         # Combining all functions to get the final remaaining value of the battery
-        return max(
+        remaining_value=  max(
             original_price * MIN_BATTERY_VALUE_RATIO,
             original_price * self.battery_to_ev_value_ratio * self.f_vat(self.vat_rate) * self.f_soh(soh) * self.f_warranty_time(t) * self.f_warranty_distance(km)
         )
+        
+        # Normalize the remaining value to be between 0 and 1 for the return of the SimpleBatteryModel
+        remaining_value_normalized = remaining_value / (original_price * BATTERY_TO_EV_VALUE_RATIO)
+        
+        return remaining_value_normalized, remaining_value
 
 class AdvancedBatteryValueModel(SimpleBatteryValueModel):
     def __init__(self):
@@ -59,8 +72,13 @@ class AdvancedBatteryValueModel(SimpleBatteryValueModel):
         return np.exp(-self.deep_discharge_penalty * time_deep_discharge)
 
     def remaining_value(self, original_price, soh, t, km, fastcharge_events, time_low_temp, time_deep_discharge):
-        # Combining all functions to get the final remaaining value of the battery
-        return max(
+        # Combining all functions to get the final remaaining value of the battery        
+        remaining_value = max(
             original_price * MIN_BATTERY_VALUE_RATIO,
-            super().remaining_value(original_price, soh, t, km) * self.f_fastcharge(fastcharge_events) * self.f_low_temp(time_low_temp) * self.f_deep_discharge(time_deep_discharge)
+            super().remaining_value(original_price, soh, t, km)[1] * self.f_fastcharge(fastcharge_events) * self.f_low_temp(time_low_temp) * self.f_deep_discharge(time_deep_discharge)
         )
+        
+        # Normalize the remaining value to be between 0 and 1
+        remaining_value_normalized = remaining_value / (original_price * BATTERY_TO_EV_VALUE_RATIO)
+        
+        return remaining_value_normalized * BATTERY_TO_EV_VALUE_RATIO
