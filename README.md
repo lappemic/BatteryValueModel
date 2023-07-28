@@ -1,4 +1,4 @@
-# batteryValueModel
+# BatteryValueModel
 
 ## About The Project
 
@@ -7,6 +7,10 @@
 Disclaimer: Please note that the content provided herein is a part of Michael Lappert's academic MSc. thesis
 conducted at Berner Fachhochschule (bfh) in Biel, Switzerland. The outcomes presented have not undergone 
 any formal validation process yet, and therefore no assurance regarding their accuracy or reliability can be given.
+
+## Deployment
+At model is deployed at the moment on this domain:
+https://battery-value-model-136905a15320.herokuapp.com
 
 ## Prerequisites
 
@@ -68,4 +72,4 @@ For more, check out the [Contributing Guide](./CONTRIBUTING.md).
 
 ## License
 
-[MIT](./LICENSE) © Your Name
+[MIT](./LICENSE) © Berner Fachhochschule (bfh)
