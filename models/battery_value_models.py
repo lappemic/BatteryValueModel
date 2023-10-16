@@ -58,24 +58,35 @@ class AdvancedBatteryValueModel(SimpleBatteryValueModel):
     def __init__(self):
         super().__init__(BASE_DEPRECIATION_RATE, VAT_RATE, WARRANTY_PERIOD, WARRANTY_DISTANCE, WARRANTY_BASE_RATIO, BATTERY_TO_EV_VALUE_RATIO)
         self.fastcharge_penalty = FASTCHARGE_PENALTY
+        self.cycles_penalty = CYCLES_PENALTY
         self.temp_penalty = TEMP_PENALTY
+        self.time_charging_penalty = TIME_CHARGING_PENALTY
         self.deep_discharge_penalty = DEEP_DISCHARGE_PENALTY
 
 
     def f_fastcharge(self, fastcharge_events):
-        return np.exp(-self.fastcharge_penalty * np.sqrt(fastcharge_events))
+        return np.exp(-self.fastcharge_penalty * self.fastcharge_penalty * np.log(fastcharge_events))
+    
+    def f_cycles(self, cycles):
+        return np.exp(-self.cycles_penalty * self.cycles_penalty * np.log10(cycles))
 
     def f_low_temp(self, time_low_temp):
-        return np.exp(-self.temp_penalty * time_low_temp)
+        return np.exp(-self.temp_penalty * np.sqrt(time_low_temp))
+    
+    def f_time_charging(self, time_charging):
+        return np.exp(-self.time_charging_penalty * self.time_charging_penalty * np.log(time_charging))
 
     def f_deep_discharge(self, time_deep_discharge):
-        return np.exp(-self.deep_discharge_penalty * time_deep_discharge)
+        return np.exp(-self.deep_discharge_penalty * np.sqrt(time_deep_discharge))
 
     def remaining_value(self, original_price, soh, t, km, fastcharge_events, time_low_temp, time_deep_discharge):
         # Combining all functions to get the final remaaining value of the battery        
         remaining_value = max(
             original_price * MIN_BATTERY_VALUE_RATIO,
-            super().remaining_value(original_price, soh, t, km)[1] * self.f_fastcharge(fastcharge_events) * self.f_low_temp(time_low_temp) * self.f_deep_discharge(time_deep_discharge)
+            super().remaining_value(original_price, soh, t, km)[1] * 
+                self.f_fastcharge(fastcharge_events) * 
+                self.f_low_temp(time_low_temp) * 
+                self.f_deep_discharge(time_deep_discharge)
         )
         
         # Normalize the remaining value to be between 0 and 1

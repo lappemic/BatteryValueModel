@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from models import AdvancedBatteryValueModel
 import matplotlib.pyplot as plt
-from constants import *
+from constants import * # TODO: Import explicitly
 
 # Define the model
 model = AdvancedBatteryValueModel()
@@ -19,8 +19,10 @@ soh = st.sidebar.slider("State of Health (SOH)", 0.5, 1.0, 0.8)
 t = st.sidebar.slider("Battery Age [years]", 0, AGE_MAX, 3)
 km = st.sidebar.slider("Distance Driven [km]", 0, DISTANCE_MAX, 60000)
 fastcharge_events = st.sidebar.slider("Fastcharge Events [Nr.]", 0, FASTCHARGE_MAX, 10)
+cycles = st.sidebar.slider("Cycles [Nr.]", 0, CYCLES_MAX, 500)
 time_low_temp = st.sidebar.slider("Time <10°C [h]", 0, TIME_LOW_TEMP_MAX, 10)
-time_deep_discharge = st.sidebar.slider("Time <40% State of Charge (SOC) [h]", 0, TIME_DEEP_DISCHARGE_MAX, 10)
+time_charging = st.sidebar.slider("Time charging [h]", 0, TIME_CHARGING_MAX, 2000)
+time_deep_discharge = st.sidebar.slider("Time <12.5% State of Charge (SOC) [h]", 0, TIME_DEEP_DISCHARGE_MAX, 10)
 
 # Calculate remaining value
 remaining_value = model.remaining_value(original_price, soh, t, km, fastcharge_events, time_low_temp, time_deep_discharge)
@@ -37,16 +39,20 @@ soh_dep = (battery_value_after_vat - battery_value_after_vat * model.f_soh(soh))
 warranty_time_dep = (battery_value_after_vat - battery_value_after_vat * model.f_warranty_time(t)) / battery_value_after_vat
 warranty_distance_dep = (battery_value_after_vat - battery_value_after_vat * model.f_warranty_distance(km)) / battery_value_after_vat
 fastcharge_dep = (battery_value_after_vat - battery_value_after_vat * model.f_fastcharge(fastcharge_events)) / battery_value_after_vat
+cycles_dep = (battery_value_after_vat - battery_value_after_vat * model.f_cycles(cycles)) / battery_value_after_vat
 time_low_temp_dep = (battery_value_after_vat - battery_value_after_vat * model.f_low_temp(time_low_temp)) / battery_value_after_vat
+time_charging_dep = (battery_value_after_vat - battery_value_after_vat * model.f_time_charging(time_charging)) /battery_value_after_vat
 time_deep_discharge_dep = (battery_value_after_vat - battery_value_after_vat * model.f_deep_discharge(time_deep_discharge)) / battery_value_after_vat
 
-features = ['SOH', 'Warranty Time', 'Warranty Distance', 'Fastcharge', 'Time <10°C', 'Time <40% SOC']
+features = ['SOH', 'Warranty Time', 'Warranty Distance', 'Fastcharge', 'Cycles', 'Time <10°C', 'Time charging', 'Time <12.5% SOC']
 depreciations = [
     soh_dep,
     warranty_time_dep,
     warranty_distance_dep,
     fastcharge_dep,
+    cycles_dep,
     time_low_temp_dep,
+    time_charging_dep,
     time_deep_discharge_dep
     ]
 
@@ -64,6 +70,10 @@ plt.title('Normalized Battery Value Depreciation by Feature')
 plt.tight_layout()
 
 st.pyplot(fig)
+
+st.info("""
+        Info: "Warranty Time" is derived from the battery's age and "Warranty Distance" is derived from the distance driven with the battery.
+        """)
 
 st.info("""
         Disclaimer: Please note that the content provided herein is a part of Michael Lappert's academic MSc. thesis
