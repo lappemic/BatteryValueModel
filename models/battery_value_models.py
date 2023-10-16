@@ -68,7 +68,7 @@ class AdvancedBatteryValueModel(SimpleBatteryValueModel):
         return np.exp(-self.fastcharge_penalty * self.fastcharge_penalty * np.log(fastcharge_events))
     
     def f_cycles(self, cycles):
-        return np.exp(-self.cycles_penalty * self.cycles_penalty * np.log10(cycles))
+        return np.exp(-self.cycles_penalty * self.cycles_penalty * np.log(cycles))
 
     def f_low_temp(self, time_low_temp):
         return np.exp(-self.temp_penalty * np.sqrt(time_low_temp))
@@ -79,13 +79,24 @@ class AdvancedBatteryValueModel(SimpleBatteryValueModel):
     def f_deep_discharge(self, time_deep_discharge):
         return np.exp(-self.deep_discharge_penalty * np.sqrt(time_deep_discharge))
 
-    def remaining_value(self, original_price, soh, t, km, fastcharge_events, time_low_temp, time_deep_discharge):
+    def remaining_value(self, 
+                        original_price, 
+                        soh, 
+                        t, 
+                        km, 
+                        fastcharge_events, 
+                        cycles,
+                        time_low_temp, 
+                        time_charging,
+                        time_deep_discharge):
         # Combining all functions to get the final remaaining value of the battery        
         remaining_value = max(
             original_price * MIN_BATTERY_VALUE_RATIO,
             super().remaining_value(original_price, soh, t, km)[1] * 
-                self.f_fastcharge(fastcharge_events) * 
+                self.f_fastcharge(fastcharge_events) *
+                self.f_cycles(cycles) *
                 self.f_low_temp(time_low_temp) * 
+                self.f_time_charging(time_charging) *
                 self.f_deep_discharge(time_deep_discharge)
         )
         
