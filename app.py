@@ -25,11 +25,19 @@ time_charging = st.sidebar.slider("Time charging [h]", 0, TIME_CHARGING_MAX, 200
 time_deep_discharge = st.sidebar.slider("Time <12.5% State of Charge (SOC) [h]", 0, TIME_DEEP_DISCHARGE_MAX, 10)
 
 # Calculate remaining value
-remaining_value = model.remaining_value(original_price, soh, t, km, fastcharge_events, time_low_temp, time_deep_discharge)
+remaining_value = model.remaining_value(original_price, 
+                                        soh, 
+                                        t, 
+                                        km, 
+                                        fastcharge_events, 
+                                        cycles,
+                                        time_low_temp, 
+                                        time_charging,
+                                        time_deep_discharge)
 
 # Display result
 battery_value = original_price*BATTERY_TO_EV_VALUE_RATIO
-battery_value_after_vat = battery_value*model.f_vat(VAT_RATE)
+battery_value_after_vat = battery_value * model.f_vat(VAT_RATE)
 st.title("Calculate easily the Remaining Value of your EV battery")
 st.write(f"The normalized remaining value of the battery with the given input parameters is {remaining_value:,.2f} from the cars original value.")
 st.write(f"The following diagram shows how much each feature contributes to the value depreciation of the batteries value")
