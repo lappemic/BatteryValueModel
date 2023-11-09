@@ -4,7 +4,7 @@
 
 `batteryValueModel` is a first hypothesis model to calculate the remaining value of an EV battery. It is part of a MSc. Thesis conducted at the bfh.
 
-Disclaimer: Please note that the content provided herein is a part of Michael Lappert's academic MSc. thesis
+Disclaimer: Please note that the content provided herein is a part of Michael Lappert's MSc. thesis
 conducted at Berner Fachhochschule (bfh) in Biel, Switzerland. The outcomes presented have not undergone 
 any formal validation process yet, and therefore no assurance regarding their accuracy or reliability can be given.
 
@@ -69,6 +69,10 @@ After running the Streamlit app, you should see output telling you that the app 
 If you have suggestions for how this project could be improved, or want to report a bug, open an issue! We'd love all and any contributions.
 
 For more, check out the [Contributing Guide](./CONTRIBUTING.md).
+
+## Developer
+
+This repository was developed by [Michael Lappert](https://github.com/lappemic) during his master's thesis.
 
 ## License
 
